@@ -1,0 +1,3 @@
+[submodule "squidasm"]
+	path = squidasm
+	url = https://github.com/QuTech-Delft/squidasm.git
