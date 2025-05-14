@@ -78,29 +78,3 @@ for round_nr in range(nr_rounds):
         parities.append(announcements_round_sum ^ 1)
 
 print(sum(parities), len(parities))
-#%%
-# parities = []
-# for round_bases, round_announcements in zip(zip(*bases),zip(*announcements)):
-#     # print(round_bases)
-#     # print(round_announcements)
-#     # print(round_bases)
-#     if sum(round_bases) % 4 == 0:
-#         print('\n')
-#         print(round_bases)
-#         print(round_announcements)
-#         parities.append(sum(round_announcements) % 2)
-#         # if (sum(round_announcements) % 2) != 0:
-#         #     print('huh2')
-#             # print(round_bases)
-#             # print(round_announcements)
-#     # elif sum(round_bases) % 4 == 2:
-#     #     parities.append((sum(parities) + 1) % 2)
-#     #     if (sum(round_announcements)) % 2 != 1:
-#             # print('huh')
-#             # print(round_bases)
-#             # print(round_announcements)
-
-
-# print(sum(parities), len(parities))
-
-# %%
