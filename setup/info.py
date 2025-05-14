@@ -10,11 +10,13 @@ from math import log
 
 
 #%% Network setup
-nr_clients = 4
+nr_clients = 8
 nr_Bobs = 2
 
-#%% Protocol parameters
+client_names = [f"C{i}" for i in range(nr_clients)]
+nr_clients = len(client_names)
 
+#%% Protocol parameters
 shuffle_testing_rounds = False
 
 nr_rounds = int(1e2)
@@ -22,10 +24,9 @@ nr_rounds = int(1e2)
 p = 0.03 + 1/(log(nr_rounds, 10)**2)
 
 
+## ---- Participant selection ---- ##
 
-#%% Calculations
-# Setup network
-client_names = [f"C{i}" for i in range(1, nr_clients + 1)]
+# Select participants etc
 Bobs = None
 Alice = choice(client_names)
 Bobs = sample(client_names, k = nr_Bobs)

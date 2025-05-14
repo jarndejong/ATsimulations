@@ -139,3 +139,17 @@ def create_line_network(
         network_config.clinks.append(clink)
 
     return network_config
+
+def add_broadcasting_server(
+        network_config: StackNetworkConfig = None,
+        name: str = "Broadcasting_Server",
+        ) -> StackNetworkConfig:
+    """
+    Add a broadcasting server to the given network configuration.
+    The broadcasting server will have a clink with all the nodes in the given network, but no quantum capabilities.
+    
+    :param network_config: (StackNetworkConfig) Network configuration to add the broadcasting server to.
+    :param name: (str) Name of the broadcasting server. Defaults to "Broadcasting_Server". Throws an error if a stack in the configuration exists with the given name.
+    :return: StackNetworkConfig with the added broadcast server.
+    """
+    raise NotImplementedError
