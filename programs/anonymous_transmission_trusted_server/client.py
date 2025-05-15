@@ -4,6 +4,8 @@ from squidasm.squidasm.sim.stack.program import Program, ProgramContext, Program
 
 from random import getrandbits
 
+from utils.messageencoding import encode_message_to_bits
+
 class Alice(Program):
     def __init__(self,
                  client_number: int = None,

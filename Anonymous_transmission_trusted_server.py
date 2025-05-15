@@ -10,7 +10,7 @@ from programs.anonymous_transmission_trusted_server.server import CentralServerP
 # from programs.anonymous_transmission_trusted_server.client import ClientProgramYbasis as ClientProgram
 # from programs.anonymous_transmission_trusted_server.client import ClientProgramXbasis as ClientProgram
 # from programs.anonymous_transmission_trusted_server.client import ClientProgramZbasis as ClientProgram
-from programs.anonymous_transmission_trusted_server.client import ClientProgramXorYbasis as ClientProgram
+from programs.anonymous_transmission_trusted_server.client import Client as ClientProgram
 
 
 from squidasm.squidasm.run.stack.run import run
