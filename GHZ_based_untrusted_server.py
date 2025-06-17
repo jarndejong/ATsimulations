@@ -6,11 +6,8 @@ Created on Thu Dec  5 14:44:29 2024
 @author: jarn
 """
 #%%x
-from programs.anonymous_transmission_trusted_server.server import CentralServerProgram
-# from programs.anonymous_transmission_trusted_server.client import ClientProgramYbasis as ClientProgram
-# from programs.anonymous_transmission_trusted_server.client import ClientProgramXbasis as ClientProgram
-# from programs.anonymous_transmission_trusted_server.client import ClientProgramZbasis as ClientProgram
-from programs.anonymous_transmission_trusted_server.client import Client as ClientProgram
+from programs.GHZ_based_untrusted_server.server import CentralServerProgram
+from programs.GHZ_based_untrusted_server.client import Client as ClientProgram
 
 
 from squidasm.squidasm.run.stack.run import run
@@ -30,10 +27,6 @@ programs = {"Server": server_program}
 
 for i in range(nr_clients):
     if f"C{i}" == Alice:
-        # node = AliceProgram(
-        #     client_number = i, 
-        #     nr_rounds = nr_rounds,
-        #     )
         node = ClientProgram(
             client_number = i,
             nr_rounds = nr_rounds
@@ -79,3 +72,5 @@ for round_nr in range(nr_rounds):
 
 print(sum(parities), len(parities))
 
+
+# %%

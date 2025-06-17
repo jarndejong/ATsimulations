@@ -18,7 +18,7 @@ link_cfg = {
   }
 
 network_config = create_central_server_network(client_names = client_names,
-                                        # link_typ = link_typ,
-                                        # link_cfg = link_cfg,
-                                        # clink_typ = 'instant',
+                                        link_typ = link_typ,
+                                        link_cfg = link_cfg,
+                                        clink_typ = 'instant',
                                         )

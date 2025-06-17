@@ -119,7 +119,9 @@ class Client(Program):
         self.client_number = client_number
         self.nr_rounds = nr_rounds
 
+        # self.bases = [int(b) for b in bin(getrandbits(self.nr_rounds))[2:].zfill(self.nr_rounds)]
         self.bases = [int(b) for b in bin(getrandbits(self.nr_rounds))[2:].zfill(self.nr_rounds)]
+
             
     @property
     def meta(self) -> ProgramMeta:

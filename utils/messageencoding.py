@@ -1,3 +1,5 @@
+from math import log2
+
 def encode_message_to_bits(message: str, total_bits: int) -> list[int]:
     """Encodes a string into a fixed-length list of bits (0s and 1s)."""
     # Convert string to bytes
@@ -35,3 +37,20 @@ def decode_bits_to_message(bits: list[int]) -> str:
     # Remove trailing null bytes (0x00) from padding
     message = bytes(byte_list).rstrip(b'\x00').decode('utf-8')
     return message
+
+def binary_entropy(p: float) -> float:
+    """Obtain the binary entropy h_2(p) of p, defined as -p*log(p) - (1-p)*log(1-p). Throws an exception when not 0 <= p <= 0.5"""
+    if (p < 0) or (p > 0.5): raise ValueError
+    return -p*log2(p) - (1-p)*log2(1-p)
+
+def calculate_statistical_correction(nr_total_rounds: int, nr_est_rounds: int, tolerance: float):
+    '''
+    Calculate the statistical error for the Z or X basis that arises from parameter estimation.
+    nr_est_rounds is the number of rounds used for estimation
+    nr_total_rounds is the total number of rounds
+    '''
+    num = (nr_total_rounds+nr_est_rounds)*(nr_est_rounds+1)
+    den = nr_total_rounds*nr_est_rounds**2
+    tolerance_factor = log2(1/tolerance)
+    
+    return (tolerance_factor*num/den)**(1/2)
