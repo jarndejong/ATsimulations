@@ -6,7 +6,8 @@ class CentralServerProgram(Program):
     def __init__(self,
                  nr_clients: int = None,
                  client_names: list = None,
-                 nr_rounds: int = None
+                 nr_rounds: int = None,
+                 print_loop_nrs: bool = False,
                  ):
         if not nr_clients:
             print("Please provide a number of clients.")
@@ -19,10 +20,9 @@ class CentralServerProgram(Program):
         self.nr_rounds = nr_rounds
         
         if not client_names:
-            print("No client names provided, defaulting to [C1, C2, ..... C{nr_clients}]")
             client_names = [f"C{nr}" for nr in range(self.nr_clients)]
         self.PEERS = client_names
-        
+        self.print_loop_nrs = print_loop_nrs
     
     @property
     def meta(self) -> ProgramMeta:
@@ -48,10 +48,11 @@ class CentralServerProgram(Program):
 
         # Distribute the GHZ states
         for loop_nr in range(self.nr_rounds):
-            # Print info of rounds number
-            if self.nr_rounds >= 100:
-                if (loop_nr - 1) % int(self.nr_rounds/100) == 0:
-                    print(f"At loop number {loop_nr} = {100*loop_nr/self.nr_rounds:.0f}%")
+            if self.print_loop_nrs:
+                # Print info of rounds number
+                if self.nr_rounds >= 100:
+                    if (loop_nr - 1) % int(self.nr_rounds/100) == 0:
+                        print(f"At loop number {loop_nr} = {100*loop_nr/self.nr_rounds:.0f}%")
 
             # Initialize the outcomes for this round
             outcomes = [0]*self.nr_clients
@@ -82,7 +83,7 @@ class CentralServerProgram(Program):
                 csockets_clients[client_nr].send(str(outcomes[client_nr]))
         
         print(
-            f"{ns.sim_time()} ns: Server has distributed {self.nr_rounds} GHZ states and has send the corrections"
+            f"\t\t{ns.sim_time()} ns: Server has distributed {self.nr_rounds} GHZ states and has send the corrections"
         )
 
-        return {'first_outcomes': first_outcomes,}
+        return {'simulation_time': ns.sim_time()}

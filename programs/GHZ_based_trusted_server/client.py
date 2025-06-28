@@ -43,9 +43,7 @@ class Alice(Program):
         # get connection to quantum network processing unit
         connection = context.connection
 
-        # Setup complete, going into loop
-        print(f"{ns.sim_time()} ns: Client C{self.client_number} says: setup complete, going into loop.")
-        
+        # Setup complete, going into loop       
         ##### GHZ creation and measurement
         measurement_outcomes = []
         for loop_nr, basis in zip(range(self.nr_rounds),self.bases):
@@ -99,9 +97,6 @@ class Alice(Program):
 
             # Append the outcomes to the list
             measurement_outcomes.append(int(outcome))
-        print(
-               f"{ns.sim_time()} ns: Client C{self.client_number} has finished all measurements"
-               )
         return {'outcomes' : measurement_outcomes, 'bases' : self.bases}
 
 
@@ -136,9 +131,7 @@ class Client(Program):
         # get connection to quantum network processing unit
         connection = context.connection
 
-        # Setup complete, going into loop
-        print(f"{ns.sim_time()} ns: Client C{self.client_number} says: setup complete, going into loop.")
-        
+        # Setup complete, going into loop        
         ##### GHZ creation and measurement
         measurement_outcomes = []
         for loop_nr in range(self.nr_rounds):
@@ -167,7 +160,4 @@ class Client(Program):
             
             # Append the outcomes to the list
             measurement_outcomes.append(int(outcome))
-        print(
-               f"{ns.sim_time()} ns: Client C{self.client_number} has finished all measurements"
-               )
         return {'outcomes' : measurement_outcomes}

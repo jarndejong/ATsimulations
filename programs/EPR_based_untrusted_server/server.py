@@ -4,15 +4,11 @@ from squidasm.squidasm.sim.stack.program import Program, ProgramContext, Program
 
 class CentralServerProgram(Program):
     def __init__(self,
-                 nr_clients: int = None,
                  client_names: list = None,
                  nr_rounds: int = None,
                  print_loop_nrs: bool = False,
                  ):
-        if not nr_clients:
-            print("Please provide a number of clients.")
-            raise ValueError
-        self.nr_clients = nr_clients
+        self.nr_clients = 2
 
         if not nr_rounds:
             print('Please provide a number of rounds.')
@@ -21,13 +17,14 @@ class CentralServerProgram(Program):
         
         if not client_names:
             client_names = [f"C{nr}" for nr in range(self.nr_clients)]
+        
         self.PEERS = client_names
         self.print_loop_nrs = print_loop_nrs
 
     @property
     def meta(self) -> ProgramMeta:
         return ProgramMeta(
-            name="GHZdist",
+            name="EPRdist",
             csockets=[self.PEERS[nr] for nr in range(self.nr_clients)],
             epr_sockets=[self.PEERS[nr] for nr in range(self.nr_clients)],
             max_qubits=self.nr_clients,
@@ -47,6 +44,9 @@ class CentralServerProgram(Program):
         first_outcomes = []
 
         # Distribute the GHZ states
+        print(
+            f"\t\t{ns.sim_time()} ns: Server starts distributing {self.nr_rounds} EPR states."
+        )
         for loop_nr in range(self.nr_rounds):
             if self.print_loop_nrs:
                 # Print info of rounds number
@@ -83,7 +83,7 @@ class CentralServerProgram(Program):
                 csockets_clients[client_nr].send(str(outcomes[client_nr]))
         
         print(
-            f"\t\t{ns.sim_time()} ns: Server has distributed {self.nr_rounds} GHZ states and has send the corrections"
+            f"\t\t{ns.sim_time()} ns: Server has distributed {self.nr_rounds} EPR states and has send the corrections"
         )
 
         return {'simulation_time': ns.sim_time()}
