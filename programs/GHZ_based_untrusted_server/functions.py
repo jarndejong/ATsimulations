@@ -13,6 +13,7 @@ from squidasm.squidasm.run.stack.run import run
 from utils.messageencoding import binary_entropy, calculate_statistical_correction
 
 from random import sample
+from math import ceil, log
 
 
 def get_number_announced_bits(
@@ -29,6 +30,7 @@ def get_number_announced_bits(
                             nr_runtimes = 1,
                             Alice: str = None,
                             print_loop_nrs: bool = False,
+                            anon_tolerance: float = 1e-8,
                             ):
     """
     nr_clients:             (default 3) Number of clients.
@@ -44,6 +46,7 @@ def get_number_announced_bits(
     nr_runtimes:            (default 1) Number of times to run the simulation.
     Alice:                  (default None) Client that is Alice.
     print_loop_nrs:         (default False) Print the loop number. Get's passed to the server program.
+    anon_tolerance:         (default 1e-8) Level of anonymity; see keyrate calculations.
     """
     ## Print how often the simulation will be run
     print(f"\t Simulation will repeat {nr_runtimes} times.")
@@ -124,7 +127,7 @@ def get_number_announced_bits(
 
         # Perform statistical correction on estimation of error rate
         if perform_statcor_VER:
-            verification_statistical_correction = calculate_statistical_correction(nr_total_rounds=nr_rounds, nr_est_rounds=nr_verification_rounds, tolerance = VER_tolerance)
+            verification_statistical_correction = calculate_statistical_correction(nr_total_rounds=nr_rounds, nr_est_rounds=len(verification_parities), tolerance = VER_tolerance)
         else:
             verification_statistical_correction = 0
         
@@ -143,7 +146,7 @@ def get_number_announced_bits(
 
             # Perform statistical correction on estimation of error rate
             if perform_statcor_PE:
-                PE_statistical_correction = calculate_statistical_correction(nr_total_rounds=nr_rounds, nr_est_rounds=nr_estimation_rounds, tolerance = PE_tolerance)
+                PE_statistical_correction = calculate_statistical_correction(nr_total_rounds=nr_rounds, nr_est_rounds=len(estimation_parities), tolerance = PE_tolerance)
             else:
                 PE_statistical_correction = 0
         else:
@@ -154,7 +157,7 @@ def get_number_announced_bits(
             PE_error_rate = verification_error_rate
 
             if perform_statcor_PE:
-                PE_statistical_correction = calculate_statistical_correction(nr_total_rounds=nr_rounds, nr_est_rounds=nr_verification_rounds, tolerance = PE_tolerance)
+                PE_statistical_correction = calculate_statistical_correction(nr_total_rounds=nr_rounds, nr_est_rounds=len(verification_parities), tolerance = PE_tolerance)
             else:
                 PE_statistical_correction = 0
 
@@ -163,14 +166,13 @@ def get_number_announced_bits(
         ##### Calculate message length
         try:
             # Calculate verification penalty
-            bin_entropy_VER = binary_entropy(verification_error_rate + verification_statistical_correction)
-            penalty_VER = (1 - bin_entropy_VER) ## This should be updated once more is known. It could also be just 1? # See explanation ipynb notebook
+            penalty_VER = 1/(ceil(log(anon_tolerance)/log(verification_error_rate + verification_statistical_correction))) ##  See explanation ipynb notebook
 
             # Calculate estimation penalty
             bin_entropy_EST = binary_entropy(PE_error_rate + PE_statistical_correction)
             penalty_EST = (1/2)*(1 - bin_entropy_EST) # See explanation ipynb notebook
 
-            message_size = penalty_VER * penalty_EST*(nr_rounds - nr_estimation_rounds - nr_verification_rounds) # See explanation ipynb notebook
+            message_size = penalty_VER * penalty_EST * (nr_rounds - nr_estimation_rounds - nr_verification_rounds) # See explanation ipynb notebook
         except ValueError:
             print(f"The (statistically corrected) error rates are too large:\n\t VER:{verification_error_rate:.2f} + ({verification_statistical_correction:.3f})\n\t  PE:{PE_error_rate:.2f} + ({PE_statistical_correction:.3f})")
             message_size = 0
