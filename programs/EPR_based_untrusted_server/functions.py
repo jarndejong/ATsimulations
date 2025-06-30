@@ -6,7 +6,7 @@ from squidasm.squidasm.run.stack.run import run
 from utils.messageencoding import binary_entropy, calculate_statistical_correction
 
 from random import sample
-
+from math import ceil
 
 ## Setup programs
 def get_number_announced_bits(
@@ -22,7 +22,6 @@ def get_number_announced_bits(
                             nr_runtimes: int = 1,
                             Alice: str = None,
                             print_loop_nrs: bool = False,
-                            simultaneous_server: bool = False,
                             ):
     """ Get the number of announced bits for the given parameters in a trusted GHZ based setting.
     nr_clients:             (default 3) Number of clients. Used for extrapolation.
@@ -37,7 +36,6 @@ def get_number_announced_bits(
     nr_runtimes:            (default 1) Number of times to run the simulation.
     Alice:                  (default None) Client that is Alice.
     print_loop_nrs:         (default False) Print the loop number. Get's passed to the server program.
-    simultaneous_server:    (default False) Whether the server can distribute EPR pairs between different pairs of clients simultaneously or not. Determines the scaling of the message length in terms of the number of clients.
     """
     ## Print how often the simulation will be run
     print(f"\t Simulation will repeat {nr_runtimes} times.")
@@ -132,7 +130,7 @@ def get_number_announced_bits(
             # Calculate estimation penalty
             bin_entropy_EST = binary_entropy(PE_error_rate + PE_statistical_correction)
 
-            # Combined penalty
+            # Combined penalty, which also includes a subtraction for arranging the verification rounds.
             penalty = (1 - bin_entropy_VER - bin_entropy_EST)
 
             # Set to zero if negative keyrate.
@@ -143,18 +141,15 @@ def get_number_announced_bits(
         except ValueError:
             print(f"The (statistically corrected) error rates are too large:\n\t VER:{verification_error_rate:.2f} + ({verification_statistical_correction:.3f})\n\t  PE:{PE_error_rate:.2f} + ({PE_statistical_correction:.3f})")
             message_size = 0
-        
-        ## Extrapolate the overall message length from the bi-partite rate.
-        if simultaneous_server:
-            scaling_factor = (nr_clients - 1 + (nr_clients % 2)) # If nr_clients is odd then this should just be nr_clients, if nr_clients is even it should be nr_clients - 1.
-            message_size /= scaling_factor
-        else:
-            scaling_factor = (1/2)*nr_clients*(nr_clients - 1)
-            message_size /= scaling_factor
+
+        scaling_factor_simul = 2*2*int(ceil(nr_clients/2)) # If nr_clients is odd then this should just be 2*nr_clients, if nr_clients is even it should be 2*(nr_clients - 1).
+        scaling_factor_sub = (1/2)*nr_clients*(nr_clients - 1)
+
+        preshared_key_length = binary_entropy(nr_verification_rounds/nr_rounds) * nr_rounds
 
         ## Append the message length and run times to the lists
-        message_lengths.append(message_size)
-        run_times.append(results['simulation_time'])
+        message_lengths.append([message_size * scaling_factor_simul - preshared_key_length, message_size * scaling_factor_sub - preshared_key_length])
+        run_times.append([results['simulation_time'] * scaling_factor_simul, results['simulation_time'] * scaling_factor_sub])
 
     # Return the list of message lengths and run times
     return message_lengths, run_times

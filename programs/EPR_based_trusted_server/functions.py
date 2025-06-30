@@ -6,7 +6,7 @@ from squidasm.squidasm.run.stack.run import run
 from utils.messageencoding import binary_entropy, calculate_statistical_correction
 
 from random import sample
-
+from math import ceil
 
 ## Setup programs
 def get_number_announced_bits(
@@ -16,12 +16,11 @@ def get_number_announced_bits(
                             perform_statcor_PE: bool = False,
                             PE_tolerance: float = 1e-8,
                             network_configuration = None,
-                            nr_runtimes: int = 1,
+                            nr_runs: int = 1,
                             Alice: str = None,
                             print_loop_nrs: bool = False,
-                            simultaneous_server: bool = False,
                             ):
-    """ Get the number of announced bits for the given parameters in a trusted GHZ based setting.
+    """ Get the number of announced bits for the given parameters in a trusted GHZ based setting. Outputs for both a 'simultaneous server' and a 'non-simultaneous server'.
     nr_clients:             (default 3) Number of clients. Used for extrapolation.
     nr_rounds:              (default 1e3) Number of rounds to run.
     nr_estimation_rounds:   (default 3e2) Number of rounds to consume to estimate the error rate.
@@ -31,10 +30,11 @@ def get_number_announced_bits(
     nr_runtimes:            (default 1) Number of times to run the simulation.
     Alice:                  (default None) Client that is Alice.
     print_loop_nrs:         (default False) Print the loop number. Get's passed to the server program.
-    simultaneous_server:    (default False) Whether the server can distribute EPR pairs between different pairs of clients simultaneously or not. Determines the scaling of the message length in terms of the number of clients.
+
+    :returns:               Two lists of length nr_runtimes. One is a nested list, at every entry there is (for that run) a list with: the message length with a simultaneous server, and with a                        subsequent server. The other list is the runtimes in a similar fashion.
     """
     ## Print how often the simulation will be run
-    print(f"\t Simulation will repeat {nr_runtimes} times.")
+    print(f"\t Simulation will repeat {nr_runs} times.")
 
     ## Import Alice if not provided
     if not Alice:
@@ -64,14 +64,14 @@ def get_number_announced_bits(
     out = run(
         config=network_configuration,
         programs=programs,
-        num_times=nr_runtimes,
+        num_times=nr_runs,
     )
 
     #%% Post-processing
     message_lengths = []
     run_times = []
     # Loop through every run separately
-    for run_nr in range(nr_runtimes):
+    for run_nr in range(nr_runs):
         results = {"simulation_time" : out[0][run_nr]['simulation_time']}
 
         for i in range(2):
@@ -108,16 +108,14 @@ def get_number_announced_bits(
             message_size = 0
         
         ## Extrapolate the overall message length from the bi-partite rate.
-        if simultaneous_server:
-            scaling_factor = (nr_clients - 1*int(nr_clients/2)) # If nr_clients is odd then this should just be nr_clients, if nr_clients is even it should be nr_clients - 1.
-            message_size /= scaling_factor
-        else:
-            scaling_factor = (1/2)*nr_clients*(nr_clients - 1)
-            message_size /= scaling_factor
+        # Simultaneous server
+        
+        scaling_factor_simul = 2*2*int(ceil(nr_clients/2)) # If nr_clients is odd then this should just be 2*nr_clients, if nr_clients is even it should be 2*(nr_clients - 1).
+        scaling_factor_sub = (1/2)*nr_clients*(nr_clients - 1)
 
         ## Append the message length and run times to the lists
-        message_lengths.append(message_size)
-        run_times.append(results['simulation_time'])
+        message_lengths.append([message_size * scaling_factor_simul, message_size * scaling_factor_sub])
+        run_times.append([results['simulation_time'] * scaling_factor_simul, results['simulation_time'] * scaling_factor_sub])
 
     # Return the list of message lengths and run times
     return message_lengths, run_times
@@ -134,13 +132,13 @@ if __name__ == '__main__':
     do_PE_statist = False
     PE_tolerance = 1e-8
 
-    nr_runtimes = 2
-    message_lengths = get_number_announced_bits(
+    nr_runs = 2
+    message_lengths, run_times = get_number_announced_bits(
                                 nr_clients=nr_clients,
                                 nr_rounds = nr_rounds,
                                 nr_estimation_rounds = nr_estimation_rounds, perform_statcor_PE = do_PE_statist, PE_tolerance = PE_tolerance,
                                 network_configuration=network_config,
-                                nr_runtimes=nr_runtimes,
+                                nr_runs=nr_runs,
                                 )
 
 

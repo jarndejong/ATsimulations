@@ -19,9 +19,11 @@ nr_PE_rounds_list = [int(2e2), int(3.5e2), int(5e2), int(6e2), int(6e2)]
 do_PE_statist = False
 PE_tolerance = 1e-8
 
+anon_tolerance = 1e-8
+
 nr_runtimes = 1
 
-## Create the network configuration
+## Create the network configuration (see also notes in setup.configuration!)
 network_config = star_network(nr_clients = nr_clients,
                               link_typ = link_typ,
                               link_cfg = link_cfg)
@@ -51,9 +53,8 @@ for i in range(3):
                                     nr_rounds = nr_rounds_list[i],
                                     nr_estimation_rounds = nr_PE_rounds_list[i],
                                     perform_statcor_PE = do_PE_statist,
-                                    network_configuration = network_config,
+                                    network_configuration = bip_network_config,
                                     nr_runtimes = nr_runtimes,
-                                    simultaneous_server = False,
                                     )
     print(EPR_trusted_lengths)
 
@@ -72,9 +73,8 @@ for i in range(3):
                                     nr_estimation_rounds = nr_PE_rounds_list[i],
                                     perform_statcor_PE = do_PE_statist,
                                     PE_tolerance = PE_tolerance,
-                                    network_configuration = network_config,
+                                    network_configuration = bip_network_config,
                                     nr_runtimes = nr_runtimes,
-                                    simultaneous_server = False,
     )
 
     print(EPR_untrusted_lengths)
@@ -111,6 +111,7 @@ for i in range(3):
                                     perform_separate_PE = False,
                                     network_configuration = network_config,
                                     nr_runtimes = nr_runtimes,
+                                    anon_tolerance = anon_tolerance,
                                      )
     print(GHZ_untrusted_combined_PE)
     save_run_to_disk(basepath = basepath,
@@ -131,6 +132,7 @@ for i in range(3):
                                     PE_tolerance = PE_tolerance,
                                     network_configuration = network_config,
                                     nr_runtimes = nr_runtimes,
+                                    anon_tolerance = anon_tolerance,
                                      )
     print(GHZ_untrusted_separate_PE)
     save_run_to_disk(basepath = basepath,
